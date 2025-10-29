@@ -615,6 +615,15 @@ const SpeedTest = ({ onDataUpdate }) => {
                 <div className="bg-white/5 rounded-lg p-2 hover:bg-white/10 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
+                      <span className="text-lg">🇹🇳</span>
+                      <span className="text-white/80 text-sm font-medium">Tunisia</span>
+                    </div>
+                    <span className="text-cyan-300 text-xs font-medium">Tunisie Telecom, Ooredoo, Orange</span>
+                  </div>
+                </div>
+                <div className="bg-white/5 rounded-lg p-2 hover:bg-white/10 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
                       <span className="text-lg">🇿🇦</span>
                       <span className="text-white/80 text-sm font-medium">South Africa</span>
                     </div>
