@@ -65,15 +65,27 @@ const SpeedTest = ({ onDataUpdate }) => {
       const response = await fetch('https://ipapi.co/json/')
       if (response.ok) {
         const data = await response.json()
+        // Check if we got rate limited
+        if (data.error) {
+          throw new Error('Rate limited')
+        }
         setLocation({
           country: data.country_name || 'Unknown',
           city: data.city || '',
           region: data.region || '',
           countryCode: data.country_code || '',
-          ip: data.ip || ''
+          ip: data.ip || '',
+          isp: data.org || 'Unknown ISP',
+          asn: data.asn || 'Unknown',
+          timezone: data.timezone || 'Unknown'
         })
       } else {
-        // Fallback to ip-api.com
+        throw new Error('Primary API failed')
+      }
+    } catch (error) {
+      console.warn('ipapi.co failed, trying fallback...', error)
+      // Fallback to ip-api.com
+      try {
         const fallbackResponse = await fetch('http://ip-api.com/json/')
         const fallbackData = await fallbackResponse.json()
         setLocation({
@@ -81,12 +93,24 @@ const SpeedTest = ({ onDataUpdate }) => {
           city: fallbackData.city || '',
           region: fallbackData.regionName || '',
           countryCode: fallbackData.countryCode || '',
-          ip: fallbackData.query || ''
+          ip: fallbackData.query || '',
+          isp: fallbackData.isp || 'Unknown ISP',
+          asn: fallbackData.as || 'Unknown',
+          timezone: fallbackData.timezone || 'Unknown'
+        })
+      } catch (fallbackError) {
+        console.error('All location APIs failed:', fallbackError)
+        setLocation({ 
+          country: 'Unknown', 
+          city: '', 
+          region: '', 
+          countryCode: '', 
+          ip: 'Unable to fetch',
+          isp: 'Unknown',
+          asn: 'Unknown',
+          timezone: 'Unknown'
         })
       }
-    } catch (error) {
-      console.error('Failed to fetch location:', error)
-      setLocation({ country: 'Unknown', city: '', region: '', countryCode: '', ip: '' })
     } finally {
       setLoadingLocation(false)
     }
@@ -456,6 +480,40 @@ const SpeedTest = ({ onDataUpdate }) => {
                 <div className="text-5xl opacity-30">⚡</div>
               </div>
             </div>
+
+            {/* IP & Network Information */}
+            {location && location.ip && (
+              <div className="bg-gradient-to-br from-blue-500/20 via-cyan-500/10 to-transparent p-4 rounded-xl border border-blue-400/40 shadow-lg shadow-blue-500/10">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-2xl">🌐</span>
+                  <p className="text-white font-semibold">Your Network Info</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                    <span className="text-blue-200/70 text-sm">IP Address:</span>
+                    <span className="text-white font-mono text-sm">{location.ip}</span>
+                  </div>
+                  {location.isp && location.isp !== 'Unknown ISP' && (
+                    <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                      <span className="text-blue-200/70 text-sm">Internet Provider:</span>
+                      <span className="text-cyan-300 font-medium text-sm">{location.isp}</span>
+                    </div>
+                  )}
+                  {location.asn && location.asn !== 'Unknown' && (
+                    <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                      <span className="text-blue-200/70 text-sm">ASN:</span>
+                      <span className="text-white font-mono text-xs">{location.asn}</span>
+                    </div>
+                  )}
+                  {location.timezone && location.timezone !== 'Unknown' && (
+                    <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                      <span className="text-blue-200/70 text-sm">Timezone:</span>
+                      <span className="text-white text-sm">{location.timezone}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Download Capability Assessment */}
             <div className={`bg-gradient-to-br ${results.capability.color}/20 via-transparent to-transparent p-5 rounded-xl border ${results.capability.color.replace('from-', 'border-').replace(' to-', '/40 shadow-lg shadow-').split(' ')[0]}/40 shadow-lg`}>
