@@ -348,13 +348,15 @@ const SpeedTest = ({ onDataUpdate }) => {
   }
 
   return (
-    <div className="relative">
-      {/* Glowing cosmic orb effect */}
-      <div className="absolute -inset-20 bg-gradient-to-r from-indigo-600/30 via-violet-600/30 to-purple-600/30 rounded-full blur-3xl animate-pulse-slow" />
-      <div className="absolute -inset-10 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-indigo-500/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
-      
-      {/* Main card */}
-      <div className="relative backdrop-blur-xl bg-gradient-to-br from-slate-900/80 via-indigo-900/60 to-purple-900/80 rounded-3xl shadow-2xl border border-cyan-400/30 p-8 w-[480px] shadow-cyan-500/20">
+    <div className="flex gap-6 items-start">
+      {/* Main Speed Test Card */}
+      <div className="relative">
+        {/* Glowing cosmic orb effect */}
+        <div className="absolute -inset-20 bg-gradient-to-r from-indigo-600/30 via-violet-600/30 to-purple-600/30 rounded-full blur-3xl animate-pulse-slow" />
+        <div className="absolute -inset-10 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-indigo-500/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
+        
+        {/* Main card */}
+        <div className="relative backdrop-blur-xl bg-gradient-to-br from-slate-900/80 via-indigo-900/60 to-purple-900/80 rounded-3xl shadow-2xl border border-cyan-400/30 p-8 w-[480px] shadow-cyan-500/20">
         {/* Title */}
         <div className="text-center mb-6">
           <h1 className="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-cyan-300 via-blue-400 to-indigo-400 bg-clip-text text-transparent drop-shadow-lg">
@@ -507,6 +509,162 @@ const SpeedTest = ({ onDataUpdate }) => {
             </button>
           </div>
         )}
+        </div>
+      </div>
+
+      {/* Info Sidebar - Shows all internal state */}
+      <div className="relative backdrop-blur-xl bg-gradient-to-br from-slate-900/90 via-indigo-900/70 to-purple-900/90 rounded-2xl shadow-2xl border border-purple-400/30 p-6 w-[320px] shadow-purple-500/20">
+        <div className="space-y-4">
+          {/* Header */}
+          <div className="border-b border-purple-400/30 pb-3">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-purple-300 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
+              🔍 Component State
+            </h2>
+            <p className="text-purple-200/60 text-xs mt-1">Real-time internal data</p>
+          </div>
+
+          {/* Testing State */}
+          <div className="bg-gradient-to-br from-purple-500/20 to-transparent p-3 rounded-lg border border-purple-400/30">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-sm">🔄</span>
+              <h3 className="text-white font-semibold text-sm">Testing Status</h3>
+            </div>
+            <div className="space-y-1 text-xs">
+              <div className="flex justify-between">
+                <span className="text-purple-300/70">testing:</span>
+                <span className={`font-mono font-bold ${testing ? 'text-green-400' : 'text-gray-400'}`}>
+                  {testing.toString()}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-purple-300/70">currentTest:</span>
+                <span className="font-mono text-cyan-300">"{currentTest || 'none'}"</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-purple-300/70">progress:</span>
+                <span className="font-mono text-yellow-300">{progress}%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Location State */}
+          <div className="bg-gradient-to-br from-blue-500/20 to-transparent p-3 rounded-lg border border-blue-400/30">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-sm">📍</span>
+              <h3 className="text-white font-semibold text-sm">Location Data</h3>
+            </div>
+            <div className="space-y-1 text-xs">
+              <div className="flex justify-between">
+                <span className="text-blue-300/70">loadingLocation:</span>
+                <span className={`font-mono font-bold ${loadingLocation ? 'text-yellow-400' : 'text-gray-400'}`}>
+                  {loadingLocation.toString()}
+                </span>
+              </div>
+              {location && (
+                <>
+                  <div className="flex justify-between">
+                    <span className="text-blue-300/70">country:</span>
+                    <span className="font-mono text-white text-[10px]">"{location.country}"</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-blue-300/70">city:</span>
+                    <span className="font-mono text-white text-[10px]">"{location.city}"</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-blue-300/70">countryCode:</span>
+                    <span className="font-mono text-white">"{location.countryCode}"</span>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Results State */}
+          <div className="bg-gradient-to-br from-cyan-500/20 to-transparent p-3 rounded-lg border border-cyan-400/30">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-sm">📊</span>
+              <h3 className="text-white font-semibold text-sm">Results Object</h3>
+            </div>
+            {results ? (
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-cyan-300/70">download:</span>
+                  <span className="font-mono text-cyan-300 font-bold">{results.download}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-cyan-300/70">upload:</span>
+                  <span className="font-mono text-indigo-300 font-bold">{results.upload}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-cyan-300/70">ping:</span>
+                  <span className="font-mono text-violet-300 font-bold">{results.ping}</span>
+                </div>
+                <div className="mt-2 pt-2 border-t border-cyan-400/20">
+                  <div className="text-cyan-300/70 mb-1">capability:</div>
+                  <div className="pl-2 space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-cyan-300/50">rating:</span>
+                      <span className="font-mono text-white text-[10px]">"{results.capability.rating}"</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-cyan-300/50">icon:</span>
+                      <span className="text-sm">{results.capability.icon}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-cyan-300/50 text-xs italic">null</div>
+            )}
+          </div>
+
+          {/* Server Info Array */}
+          <div className="bg-gradient-to-br from-green-500/20 to-transparent p-3 rounded-lg border border-green-400/30">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-sm">🌐</span>
+              <h3 className="text-white font-semibold text-sm">Server Info Array</h3>
+            </div>
+            <div className="text-xs">
+              <div className="flex justify-between mb-2">
+                <span className="text-green-300/70">length:</span>
+                <span className="font-mono text-yellow-300">{serverInfo.length}</span>
+              </div>
+              {serverInfo.length > 0 ? (
+                <div className="space-y-1 max-h-32 overflow-y-auto">
+                  {serverInfo.map((server, index) => (
+                    <div key={index} className="bg-white/5 rounded p-1.5">
+                      <div className="text-green-300/70">[{index}]:</div>
+                      <div className="pl-2 space-y-0.5">
+                        <div className="text-white text-[10px]">type: "{server.type}"</div>
+                        <div className="text-white text-[10px]">server: "{server.server}"</div>
+                        <div className="text-white text-[10px] truncate">url: "{server.url}"</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-green-300/50 italic">[]</div>
+              )}
+            </div>
+          </div>
+
+          {/* Functions Available */}
+          <div className="bg-gradient-to-br from-orange-500/20 to-transparent p-3 rounded-lg border border-orange-400/30">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-sm">⚙️</span>
+              <h3 className="text-white font-semibold text-sm">Functions</h3>
+            </div>
+            <div className="space-y-1 text-xs text-orange-300/70">
+              <div>• formatSpeed()</div>
+              <div>• getDownloadCapability()</div>
+              <div>• fetchLocation()</div>
+              <div>• measureDownloadSpeed()</div>
+              <div>• measureUploadSpeed()</div>
+              <div>• measurePing()</div>
+              <div>• runSpeedTest()</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
