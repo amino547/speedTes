@@ -512,15 +512,15 @@ const SpeedTest = ({ onDataUpdate }) => {
         </div>
       </div>
 
-      {/* Info Sidebar - Shows all internal state */}
-      <div className="relative backdrop-blur-xl bg-gradient-to-br from-slate-900/90 via-indigo-900/70 to-purple-900/90 rounded-2xl shadow-2xl border border-purple-400/30 p-6 w-[320px] shadow-purple-500/20">
+      {/* Info Sidebar - Shows all speed test information */}
+      <div className="relative backdrop-blur-xl bg-gradient-to-br from-slate-900/90 via-indigo-900/70 to-purple-900/90 rounded-2xl shadow-2xl border border-purple-400/30 p-6 w-[320px] shadow-purple-500/20 max-h-[600px] overflow-y-auto">
         <div className="space-y-4">
           {/* Header */}
-          <div className="border-b border-purple-400/30 pb-3">
+          <div className="border-b border-purple-400/30 pb-3 sticky top-0 bg-slate-900/95 backdrop-blur-xl z-10">
             <h2 className="text-xl font-bold bg-gradient-to-r from-purple-300 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
-              🔍 Component State
+              📊 Speed Test Info
             </h2>
-            <p className="text-purple-200/60 text-xs mt-1">Real-time internal data</p>
+            <p className="text-purple-200/60 text-xs mt-1">All test details & data</p>
           </div>
 
           {/* Testing State */}
@@ -648,20 +648,86 @@ const SpeedTest = ({ onDataUpdate }) => {
             </div>
           </div>
 
-          {/* Functions Available */}
+          {/* Connection Quality Details */}
+          {results && results.capability && (
+            <div className="bg-gradient-to-br from-yellow-500/20 to-transparent p-3 rounded-lg border border-yellow-400/30">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-sm">{results.capability.icon}</span>
+                <h3 className="text-white font-semibold text-sm">Connection Quality</h3>
+              </div>
+              <div className="space-y-2 text-xs">
+                <div className="bg-white/5 rounded p-2">
+                  <div className="text-yellow-300/70 mb-1">Rating:</div>
+                  <div className="text-white font-bold">{results.capability.rating}</div>
+                </div>
+                <div className="bg-white/5 rounded p-2">
+                  <div className="text-yellow-300/70 mb-1">Description:</div>
+                  <div className="text-white/80 text-[10px] leading-relaxed">{results.capability.description}</div>
+                </div>
+                <div className="bg-white/5 rounded p-2">
+                  <div className="text-yellow-300/70 mb-1">Game Download:</div>
+                  <div className="text-white/80 text-[10px]">{results.capability.gameDownload}</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* What You Can Do */}
+          {results && (
+            <div className="bg-gradient-to-br from-pink-500/20 to-transparent p-3 rounded-lg border border-pink-400/30">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-sm">💡</span>
+                <h3 className="text-white font-semibold text-sm">What You Can Do</h3>
+              </div>
+              <div className="space-y-1 text-xs text-pink-200/80">
+                {parseFloat(results.download) >= 25 && <div>✓ Stream 4K video</div>}
+                {parseFloat(results.download) >= 15 && <div>✓ Stream HD video</div>}
+                {parseFloat(results.download) >= 5 && <div>✓ Video calls</div>}
+                {parseFloat(results.download) >= 3 && <div>✓ Browse websites</div>}
+                {parseFloat(results.download) >= 10 && <div>✓ Download large files</div>}
+                {parseFloat(results.download) >= 50 && <div>✓ Online gaming (smooth)</div>}
+                {parseFloat(results.upload) >= 10 && <div>✓ Upload videos/photos</div>}
+                {parseFloat(results.upload) >= 5 && <div>✓ Video streaming</div>}
+              </div>
+            </div>
+          )}
+
+          {/* Speed Comparison */}
+          {results && (
+            <div className="bg-gradient-to-br from-indigo-500/20 to-transparent p-3 rounded-lg border border-indigo-400/30">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-sm">📈</span>
+                <h3 className="text-white font-semibold text-sm">Speed Comparison</h3>
+              </div>
+              <div className="space-y-2 text-xs">
+                <div className="bg-white/5 rounded p-2">
+                  <div className="text-indigo-300/70 mb-1">Download vs Upload Ratio:</div>
+                  <div className="text-white font-mono">
+                    {(parseFloat(results.download) / parseFloat(results.upload)).toFixed(1)}:1
+                  </div>
+                </div>
+                <div className="bg-white/5 rounded p-2">
+                  <div className="text-indigo-300/70 mb-1">Total Bandwidth:</div>
+                  <div className="text-white font-mono">
+                    {(parseFloat(results.download) + parseFloat(results.upload)).toFixed(2)} Mbps
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Test Information */}
           <div className="bg-gradient-to-br from-orange-500/20 to-transparent p-3 rounded-lg border border-orange-400/30">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm">⚙️</span>
-              <h3 className="text-white font-semibold text-sm">Functions</h3>
+              <span className="text-sm">ℹ️</span>
+              <h3 className="text-white font-semibold text-sm">About This Test</h3>
             </div>
-            <div className="space-y-1 text-xs text-orange-300/70">
-              <div>• formatSpeed()</div>
-              <div>• getDownloadCapability()</div>
-              <div>• fetchLocation()</div>
-              <div>• measureDownloadSpeed()</div>
-              <div>• measureUploadSpeed()</div>
-              <div>• measurePing()</div>
-              <div>• runSpeedTest()</div>
+            <div className="space-y-1 text-xs text-orange-200/70 leading-relaxed">
+              <div>• Tests use Cloudflare CDN</div>
+              <div>• Multiple file sizes tested</div>
+              <div>• Ping tests 4 major servers</div>
+              <div>• Results averaged for accuracy</div>
+              <div>• All tests run in your browser</div>
             </div>
           </div>
         </div>
