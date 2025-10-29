@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import SpeedTest from './components/SpeedTest/index'
+import SpeedTest from './components/SpeedTest'
 import StarField from './components/StarField'
 import Planet from './components/Planet'
 import Sidebar from './components/Sidebar'
