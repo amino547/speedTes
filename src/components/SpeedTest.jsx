@@ -417,6 +417,72 @@ const SpeedTest = ({ onDataUpdate }) => {
           ) : null}
         </div>
 
+        {/* IP & Network Information - Always visible */}
+        {location && location.ip && location.ip !== 'Unable to fetch' && (
+          <div className="bg-gradient-to-br from-blue-500/20 via-cyan-500/10 to-transparent p-4 rounded-xl border border-blue-400/40 shadow-lg shadow-blue-500/10 mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-2xl">🌐</span>
+              <p className="text-white font-semibold">Your Network Info</p>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                <span className="text-blue-200/70 text-sm">IP Address:</span>
+                <span className="text-white font-mono text-sm">{location.ip}</span>
+              </div>
+              {location.isp && location.isp !== 'Unknown ISP' && (
+                <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                  <span className="text-blue-200/70 text-sm">Internet Provider:</span>
+                  <span className="text-cyan-300 font-medium text-sm">{location.isp}</span>
+                </div>
+              )}
+              {location.country && location.country !== 'Unknown' && (
+                <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                  <span className="text-blue-200/70 text-sm">Country:</span>
+                  <span className="text-white text-sm">{location.country}</span>
+                </div>
+              )}
+              {location.city && location.city !== 'Unknown' && (
+                <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                  <span className="text-blue-200/70 text-sm">City:</span>
+                  <span className="text-white text-sm">{location.city}</span>
+                </div>
+              )}
+              {location.region && location.region !== 'Unknown' && (
+                <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                  <span className="text-blue-200/70 text-sm">Region:</span>
+                  <span className="text-white text-sm">{location.region}</span>
+                </div>
+              )}
+              {location.asn && location.asn !== 'Unknown' && (
+                <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                  <span className="text-blue-200/70 text-sm">ASN:</span>
+                  <span className="text-white font-mono text-xs">{location.asn}</span>
+                </div>
+              )}
+              {location.timezone && location.timezone !== 'Unknown' && (
+                <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                  <span className="text-blue-200/70 text-sm">Timezone:</span>
+                  <span className="text-white text-sm">{location.timezone}</span>
+                </div>
+              )}
+              {location.postal && (
+                <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                  <span className="text-blue-200/70 text-sm">Postal Code:</span>
+                  <span className="text-white text-sm">{location.postal}</span>
+                </div>
+              )}
+              {location.latitude && location.longitude && (
+                <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                  <span className="text-blue-200/70 text-sm">Coordinates:</span>
+                  <span className="text-white font-mono text-xs">
+                    {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Test button or results */}
         {!testing && !results && (
           <div className="text-center">
@@ -500,72 +566,6 @@ const SpeedTest = ({ onDataUpdate }) => {
                 <div className="text-5xl opacity-30">⚡</div>
               </div>
             </div>
-
-            {/* IP & Network Information */}
-            {location && location.ip && (
-              <div className="bg-gradient-to-br from-blue-500/20 via-cyan-500/10 to-transparent p-4 rounded-xl border border-blue-400/40 shadow-lg shadow-blue-500/10">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-2xl">🌐</span>
-                  <p className="text-white font-semibold">Your Network Info</p>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                    <span className="text-blue-200/70 text-sm">IP Address:</span>
-                    <span className="text-white font-mono text-sm">{location.ip}</span>
-                  </div>
-                  {location.isp && location.isp !== 'Unknown ISP' && (
-                    <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                      <span className="text-blue-200/70 text-sm">Internet Provider:</span>
-                      <span className="text-cyan-300 font-medium text-sm">{location.isp}</span>
-                    </div>
-                  )}
-                  {location.country && location.country !== 'Unknown' && (
-                    <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                      <span className="text-blue-200/70 text-sm">Country:</span>
-                      <span className="text-white text-sm">{location.country}</span>
-                    </div>
-                  )}
-                  {location.city && location.city !== 'Unknown' && (
-                    <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                      <span className="text-blue-200/70 text-sm">City:</span>
-                      <span className="text-white text-sm">{location.city}</span>
-                    </div>
-                  )}
-                  {location.region && location.region !== 'Unknown' && (
-                    <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                      <span className="text-blue-200/70 text-sm">Region:</span>
-                      <span className="text-white text-sm">{location.region}</span>
-                    </div>
-                  )}
-                  {location.asn && location.asn !== 'Unknown' && (
-                    <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                      <span className="text-blue-200/70 text-sm">ASN:</span>
-                      <span className="text-white font-mono text-xs">{location.asn}</span>
-                    </div>
-                  )}
-                  {location.timezone && location.timezone !== 'Unknown' && (
-                    <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                      <span className="text-blue-200/70 text-sm">Timezone:</span>
-                      <span className="text-white text-sm">{location.timezone}</span>
-                    </div>
-                  )}
-                  {location.postal && (
-                    <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                      <span className="text-blue-200/70 text-sm">Postal Code:</span>
-                      <span className="text-white text-sm">{location.postal}</span>
-                    </div>
-                  )}
-                  {location.latitude && location.longitude && (
-                    <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                      <span className="text-blue-200/70 text-sm">Coordinates:</span>
-                      <span className="text-white font-mono text-xs">
-                        {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
 
             {/* Download Capability Assessment */}
             <div className={`bg-gradient-to-br ${results.capability.color}/20 via-transparent to-transparent p-5 rounded-xl border ${results.capability.color.replace('from-', 'border-').replace(' to-', '/40 shadow-lg shadow-').split(' ')[0]}/40 shadow-lg`}>
