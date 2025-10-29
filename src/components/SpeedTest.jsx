@@ -61,69 +61,130 @@ const SpeedTest = ({ onDataUpdate }) => {
   const fetchLocation = async () => {
     try {
       setLoadingLocation(true)
-      // Try ipapi.co first (free, no key required, works for ALL countries)
-      const response = await fetch('https://ipapi.co/json/')
-      if (response.ok) {
-        const data = await response.json()
-        // Check if we got rate limited
-        if (data.error) {
-          throw new Error('Rate limited')
-        }
-        console.log('IP Info fetched:', data) // Debug log
-        setLocation({
-          country: data.country_name || 'Unknown',
-          city: data.city || 'Unknown',
-          region: data.region || 'Unknown',
-          countryCode: data.country_code || '',
-          ip: data.ip || 'Unknown',
-          isp: data.org || 'Unknown ISP',
-          asn: data.asn || 'Unknown',
-          timezone: data.timezone || 'Unknown',
-          postal: data.postal || '',
-          latitude: data.latitude || null,
-          longitude: data.longitude || null,
-          continent: data.continent_code || ''
-        })
-        return
-      } else {
-        throw new Error('Primary API failed')
-      }
-    } catch (error) {
-      console.warn('ipapi.co failed, trying fallback...', error)
-      // Fallback to ip-api.com (also works for ALL countries worldwide)
-      try {
-        const fallbackResponse = await fetch('http://ip-api.com/json/')
-        if (fallbackResponse.ok) {
-          const fallbackData = await fallbackResponse.json()
-          console.log('Fallback IP Info fetched:', fallbackData) // Debug log
-          setLocation({
-            country: fallbackData.country || 'Unknown',
-            city: fallbackData.city || 'Unknown',
-            region: fallbackData.regionName || 'Unknown',
-            countryCode: fallbackData.countryCode || '',
-            ip: fallbackData.query || 'Unknown',
-            isp: fallbackData.isp || 'Unknown ISP',
-            asn: fallbackData.as || 'Unknown',
-            timezone: fallbackData.timezone || 'Unknown',
-            postal: fallbackData.zip || '',
-            latitude: fallbackData.lat || null,
-            longitude: fallbackData.lon || null,
-            continent: ''
-          })
-          return
-        }
-      } catch (fallbackError) {
-        console.error('All location APIs failed:', fallbackError)
-      }
       
-      // If all APIs fail, set minimal info
+      // Try multiple APIs in sequence for maximum reliability
+      
+      // API 1: ip-api.com (most reliable, no rate limits for reasonable use)
+      try {
+        console.log('Trying ip-api.com...')
+        const response1 = await fetch('http://ip-api.com/json/?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,query')
+        if (response1.ok) {
+          const data = await response1.json()
+          console.log('✅ IP Info from ip-api.com:', data)
+          if (data.status === 'success') {
+            setLocation({
+              country: data.country || 'Unknown',
+              city: data.city || 'Unknown',
+              region: data.regionName || 'Unknown',
+              countryCode: data.countryCode || '',
+              ip: data.query || 'Unknown',
+              isp: data.isp || data.org || 'Unknown ISP',
+              asn: data.as || 'Unknown',
+              timezone: data.timezone || 'Unknown',
+              postal: data.zip || '',
+              latitude: data.lat || null,
+              longitude: data.lon || null,
+              continent: ''
+            })
+            return
+          }
+        }
+      } catch (error) {
+        console.warn('❌ ip-api.com failed:', error)
+      }
+
+      // API 2: ipapi.co
+      try {
+        console.log('Trying ipapi.co...')
+        const response2 = await fetch('https://ipapi.co/json/')
+        if (response2.ok) {
+          const data = await response2.json()
+          console.log('✅ IP Info from ipapi.co:', data)
+          if (!data.error) {
+            setLocation({
+              country: data.country_name || 'Unknown',
+              city: data.city || 'Unknown',
+              region: data.region || 'Unknown',
+              countryCode: data.country_code || '',
+              ip: data.ip || 'Unknown',
+              isp: data.org || 'Unknown ISP',
+              asn: data.asn || 'Unknown',
+              timezone: data.timezone || 'Unknown',
+              postal: data.postal || '',
+              latitude: data.latitude || null,
+              longitude: data.longitude || null,
+              continent: data.continent_code || ''
+            })
+            return
+          }
+        }
+      } catch (error) {
+        console.warn('❌ ipapi.co failed:', error)
+      }
+
+      // API 3: ipify + ipapi (simple IP first, then details)
+      try {
+        console.log('Trying ipify for IP...')
+        const ipResponse = await fetch('https://api.ipify.org?format=json')
+        if (ipResponse.ok) {
+          const ipData = await ipResponse.json()
+          console.log('✅ Got IP from ipify:', ipData.ip)
+          
+          // Try to get more details with this IP
+          try {
+            const detailsResponse = await fetch(`http://ip-api.com/json/${ipData.ip}`)
+            if (detailsResponse.ok) {
+              const details = await detailsResponse.json()
+              console.log('✅ Got details for IP:', details)
+              setLocation({
+                country: details.country || 'Unknown',
+                city: details.city || 'Unknown',
+                region: details.regionName || 'Unknown',
+                countryCode: details.countryCode || '',
+                ip: ipData.ip,
+                isp: details.isp || 'Unknown ISP',
+                asn: details.as || 'Unknown',
+                timezone: details.timezone || 'Unknown',
+                postal: details.zip || '',
+                latitude: details.lat || null,
+                longitude: details.lon || null,
+                continent: ''
+              })
+              return
+            }
+          } catch (detailError) {
+            console.warn('Could not get details, using IP only')
+            // At least show the IP
+            setLocation({
+              country: 'Unknown',
+              city: 'Unknown',
+              region: 'Unknown',
+              countryCode: '',
+              ip: ipData.ip,
+              isp: 'Unknown ISP',
+              asn: 'Unknown',
+              timezone: 'Unknown',
+              postal: '',
+              latitude: null,
+              longitude: null,
+              continent: ''
+            })
+            return
+          }
+        }
+      } catch (error) {
+        console.warn('❌ ipify failed:', error)
+      }
+
+      // If all APIs fail
+      console.error('❌ All IP APIs failed')
       setLocation({ 
-        country: 'Unknown', 
-        city: 'Unknown', 
-        region: 'Unknown', 
+        country: 'Unable to detect', 
+        city: 'Unable to detect', 
+        region: 'Unable to detect', 
         countryCode: '', 
         ip: 'Unable to fetch',
-        isp: 'Unknown ISP',
+        isp: 'Unable to detect',
         asn: 'Unknown',
         timezone: 'Unknown',
         postal: '',
