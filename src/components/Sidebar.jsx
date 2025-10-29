@@ -13,9 +13,14 @@ const Sidebar = ({ isOpen, toggleSidebar, location, results, serverInfo }) => {
 
   const fetchDetailedIP = async () => {
     try {
+      // Try ipapi.co first
       const response = await fetch('https://ipapi.co/json/')
       if (response.ok) {
         const data = await response.json()
+        // Check if we got rate limited
+        if (data.error) {
+          throw new Error('Rate limited')
+        }
         setIpInfo({
           ip: data.ip,
           ipv6: data.version === 'IPv6' ? data.ip : 'Not available',
@@ -26,10 +31,44 @@ const Sidebar = ({ isOpen, toggleSidebar, location, results, serverInfo }) => {
           latitude: data.latitude,
           longitude: data.longitude
         })
+        return
       }
     } catch (error) {
-      console.error('Failed to fetch IP details:', error)
+      console.warn('ipapi.co failed, trying fallback...', error)
     }
+
+    // Fallback to ip-api.com
+    try {
+      const fallbackResponse = await fetch('http://ip-api.com/json/')
+      if (fallbackResponse.ok) {
+        const fallbackData = await fallbackResponse.json()
+        setIpInfo({
+          ip: fallbackData.query || 'Unknown',
+          ipv6: 'Not available',
+          isp: fallbackData.isp || 'Unknown ISP',
+          asn: fallbackData.as || 'Unknown',
+          timezone: fallbackData.timezone || 'Unknown',
+          postal: fallbackData.zip || 'Unknown',
+          latitude: fallbackData.lat,
+          longitude: fallbackData.lon
+        })
+        return
+      }
+    } catch (error) {
+      console.error('All IP fetch methods failed:', error)
+    }
+
+    // If all fails, set minimal info
+    setIpInfo({
+      ip: 'Unable to fetch',
+      ipv6: 'Not available',
+      isp: 'Unknown',
+      asn: 'Unknown',
+      timezone: 'Unknown',
+      postal: 'Unknown',
+      latitude: null,
+      longitude: null
+    })
   }
 
   const pingCustomServer = async () => {
