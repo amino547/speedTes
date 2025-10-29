@@ -61,7 +61,7 @@ const SpeedTest = ({ onDataUpdate }) => {
   const fetchLocation = async () => {
     try {
       setLoadingLocation(true)
-      // Try ipapi.co first (free, no key required)
+      // Try ipapi.co first (free, no key required, works for ALL countries)
       const response = await fetch('https://ipapi.co/json/')
       if (response.ok) {
         const data = await response.json()
@@ -69,48 +69,68 @@ const SpeedTest = ({ onDataUpdate }) => {
         if (data.error) {
           throw new Error('Rate limited')
         }
+        console.log('IP Info fetched:', data) // Debug log
         setLocation({
           country: data.country_name || 'Unknown',
-          city: data.city || '',
-          region: data.region || '',
+          city: data.city || 'Unknown',
+          region: data.region || 'Unknown',
           countryCode: data.country_code || '',
-          ip: data.ip || '',
+          ip: data.ip || 'Unknown',
           isp: data.org || 'Unknown ISP',
           asn: data.asn || 'Unknown',
-          timezone: data.timezone || 'Unknown'
+          timezone: data.timezone || 'Unknown',
+          postal: data.postal || '',
+          latitude: data.latitude || null,
+          longitude: data.longitude || null,
+          continent: data.continent_code || ''
         })
+        return
       } else {
         throw new Error('Primary API failed')
       }
     } catch (error) {
       console.warn('ipapi.co failed, trying fallback...', error)
-      // Fallback to ip-api.com
+      // Fallback to ip-api.com (also works for ALL countries worldwide)
       try {
         const fallbackResponse = await fetch('http://ip-api.com/json/')
-        const fallbackData = await fallbackResponse.json()
-        setLocation({
-          country: fallbackData.country || 'Unknown',
-          city: fallbackData.city || '',
-          region: fallbackData.regionName || '',
-          countryCode: fallbackData.countryCode || '',
-          ip: fallbackData.query || '',
-          isp: fallbackData.isp || 'Unknown ISP',
-          asn: fallbackData.as || 'Unknown',
-          timezone: fallbackData.timezone || 'Unknown'
-        })
+        if (fallbackResponse.ok) {
+          const fallbackData = await fallbackResponse.json()
+          console.log('Fallback IP Info fetched:', fallbackData) // Debug log
+          setLocation({
+            country: fallbackData.country || 'Unknown',
+            city: fallbackData.city || 'Unknown',
+            region: fallbackData.regionName || 'Unknown',
+            countryCode: fallbackData.countryCode || '',
+            ip: fallbackData.query || 'Unknown',
+            isp: fallbackData.isp || 'Unknown ISP',
+            asn: fallbackData.as || 'Unknown',
+            timezone: fallbackData.timezone || 'Unknown',
+            postal: fallbackData.zip || '',
+            latitude: fallbackData.lat || null,
+            longitude: fallbackData.lon || null,
+            continent: ''
+          })
+          return
+        }
       } catch (fallbackError) {
         console.error('All location APIs failed:', fallbackError)
-        setLocation({ 
-          country: 'Unknown', 
-          city: '', 
-          region: '', 
-          countryCode: '', 
-          ip: 'Unable to fetch',
-          isp: 'Unknown',
-          asn: 'Unknown',
-          timezone: 'Unknown'
-        })
       }
+      
+      // If all APIs fail, set minimal info
+      setLocation({ 
+        country: 'Unknown', 
+        city: 'Unknown', 
+        region: 'Unknown', 
+        countryCode: '', 
+        ip: 'Unable to fetch',
+        isp: 'Unknown ISP',
+        asn: 'Unknown',
+        timezone: 'Unknown',
+        postal: '',
+        latitude: null,
+        longitude: null,
+        continent: ''
+      })
     } finally {
       setLoadingLocation(false)
     }
@@ -499,6 +519,24 @@ const SpeedTest = ({ onDataUpdate }) => {
                       <span className="text-cyan-300 font-medium text-sm">{location.isp}</span>
                     </div>
                   )}
+                  {location.country && location.country !== 'Unknown' && (
+                    <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                      <span className="text-blue-200/70 text-sm">Country:</span>
+                      <span className="text-white text-sm">{location.country}</span>
+                    </div>
+                  )}
+                  {location.city && location.city !== 'Unknown' && (
+                    <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                      <span className="text-blue-200/70 text-sm">City:</span>
+                      <span className="text-white text-sm">{location.city}</span>
+                    </div>
+                  )}
+                  {location.region && location.region !== 'Unknown' && (
+                    <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                      <span className="text-blue-200/70 text-sm">Region:</span>
+                      <span className="text-white text-sm">{location.region}</span>
+                    </div>
+                  )}
                   {location.asn && location.asn !== 'Unknown' && (
                     <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
                       <span className="text-blue-200/70 text-sm">ASN:</span>
@@ -509,6 +547,20 @@ const SpeedTest = ({ onDataUpdate }) => {
                     <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
                       <span className="text-blue-200/70 text-sm">Timezone:</span>
                       <span className="text-white text-sm">{location.timezone}</span>
+                    </div>
+                  )}
+                  {location.postal && (
+                    <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                      <span className="text-blue-200/70 text-sm">Postal Code:</span>
+                      <span className="text-white text-sm">{location.postal}</span>
+                    </div>
+                  )}
+                  {location.latitude && location.longitude && (
+                    <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
+                      <span className="text-blue-200/70 text-sm">Coordinates:</span>
+                      <span className="text-white font-mono text-xs">
+                        {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
+                      </span>
                     </div>
                   )}
                 </div>
