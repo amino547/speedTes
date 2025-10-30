@@ -64,50 +64,21 @@ const SpeedTest = ({ onDataUpdate }) => {
       
       // Try multiple APIs in sequence for maximum reliability
       
-      // API 1: ipapi.co (HTTPS - works on Vercel)
+      // API 1: ipify.org (Most reliable HTTPS API)
       try {
-        console.log('Trying ipapi.co...')
-        const response1 = await fetch('https://ipapi.co/json/')
-        if (response1.ok) {
-          const data = await response1.json()
-          console.log('✅ IP Info from ipapi.co:', data)
-          if (!data.error) {
-            setLocation({
-              country: data.country_name || 'Unknown',
-              city: data.city || 'Unknown',
-              region: data.region || 'Unknown',
-              countryCode: data.country_code || '',
-              ip: data.ip || 'Unknown',
-              ipv6: data.version === 'IPv6' ? data.ip : null,
-              isp: data.org || 'Unknown ISP',
-              asn: data.asn || 'Unknown',
-              timezone: data.timezone || 'Unknown',
-              postal: data.postal || '',
-              latitude: data.latitude || null,
-              longitude: data.longitude || null,
-              continent: data.continent_code || ''
-            })
-            return
-          }
-        }
-      } catch (error) {
-        console.warn('❌ ipapi.co failed:', error)
-      }
-
-      // API 2: ipify.org (HTTPS - very reliable)
-      try {
-        console.log('Trying ipify for IP...')
+        console.log('Trying ipify.org for IP...')
         const ipResponse = await fetch('https://api.ipify.org?format=json')
         if (ipResponse.ok) {
           const ipData = await ipResponse.json()
           console.log('✅ Got IP from ipify:', ipData.ip)
           
-          // Try to get more details from ipapi.co with this IP
+          // Now get geolocation details from ipapi.co
           try {
+            console.log('Fetching details from ipapi.co...')
             const detailsResponse = await fetch(`https://ipapi.co/${ipData.ip}/json/`)
             if (detailsResponse.ok) {
               const details = await detailsResponse.json()
-              console.log('✅ Got details for IP:', details)
+              console.log('✅ Got details:', details)
               if (!details.error) {
                 setLocation({
                   country: details.country_name || 'Unknown',
@@ -128,7 +99,7 @@ const SpeedTest = ({ onDataUpdate }) => {
               }
             }
           } catch (detailError) {
-            console.warn('Could not get details, using IP only')
+            console.warn('Details fetch failed, using IP only:', detailError)
             // At least show the IP
             setLocation({
               country: 'Unknown',
@@ -149,7 +120,37 @@ const SpeedTest = ({ onDataUpdate }) => {
           }
         }
       } catch (error) {
-        console.warn('❌ ipify failed:', error)
+        console.warn('❌ ipify.org failed:', error)
+      }
+
+      // API 2: ipapi.co direct (fallback)
+      try {
+        console.log('Trying ipapi.co direct...')
+        const response2 = await fetch('https://ipapi.co/json/')
+        if (response2.ok) {
+          const data = await response2.json()
+          console.log('✅ IP Info from ipapi.co:', data)
+          if (!data.error && data.ip) {
+            setLocation({
+              country: data.country_name || 'Unknown',
+              city: data.city || 'Unknown',
+              region: data.region || 'Unknown',
+              countryCode: data.country_code || '',
+              ip: data.ip,
+              ipv6: data.version === 'IPv6' ? data.ip : null,
+              isp: data.org || 'Unknown ISP',
+              asn: data.asn || 'Unknown',
+              timezone: data.timezone || 'Unknown',
+              postal: data.postal || '',
+              latitude: data.latitude || null,
+              longitude: data.longitude || null,
+              continent: data.continent_code || ''
+            })
+            return
+          }
+        }
+      } catch (error) {
+        console.warn('❌ ipapi.co direct failed:', error)
       }
 
       // API 3: freeipapi.com (HTTPS fallback)
