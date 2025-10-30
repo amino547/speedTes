@@ -78,6 +78,7 @@ const SpeedTest = ({ onDataUpdate }) => {
               region: data.regionName || 'Unknown',
               countryCode: data.countryCode || '',
               ip: data.query || 'Unknown',
+              ipv6: null, // ip-api.com doesn't provide IPv6 in basic call
               isp: data.isp || data.org || 'Unknown ISP',
               asn: data.as || 'Unknown',
               timezone: data.timezone || 'Unknown',
@@ -107,6 +108,7 @@ const SpeedTest = ({ onDataUpdate }) => {
               region: data.region || 'Unknown',
               countryCode: data.country_code || '',
               ip: data.ip || 'Unknown',
+              ipv6: data.version === 'IPv6' ? data.ip : null,
               isp: data.org || 'Unknown ISP',
               asn: data.asn || 'Unknown',
               timezone: data.timezone || 'Unknown',
@@ -142,6 +144,7 @@ const SpeedTest = ({ onDataUpdate }) => {
                 region: details.regionName || 'Unknown',
                 countryCode: details.countryCode || '',
                 ip: ipData.ip,
+                ipv6: null,
                 isp: details.isp || 'Unknown ISP',
                 asn: details.as || 'Unknown',
                 timezone: details.timezone || 'Unknown',
@@ -161,6 +164,7 @@ const SpeedTest = ({ onDataUpdate }) => {
               region: 'Unknown',
               countryCode: '',
               ip: ipData.ip,
+              ipv6: null,
               isp: 'Unknown ISP',
               asn: 'Unknown',
               timezone: 'Unknown',
@@ -184,6 +188,7 @@ const SpeedTest = ({ onDataUpdate }) => {
         region: 'Unable to detect', 
         countryCode: '', 
         ip: 'Unable to fetch',
+        ipv6: null,
         isp: 'Unable to detect',
         asn: 'Unknown',
         timezone: 'Unknown',
@@ -478,69 +483,75 @@ const SpeedTest = ({ onDataUpdate }) => {
           ) : null}
         </div>
 
-        {/* IP & Network Information - Always visible */}
+        {/* Network Dashboard - Always visible */}
         {location && location.ip && location.ip !== 'Unable to fetch' && (
-          <div className="bg-gradient-to-br from-blue-500/20 via-cyan-500/10 to-transparent p-4 rounded-xl border border-blue-400/40 shadow-lg shadow-blue-500/10 mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-2xl">🌐</span>
-              <p className="text-white font-semibold">Your Network Info</p>
+          <div className="bg-gradient-to-br from-blue-500/20 via-cyan-500/10 to-transparent p-5 rounded-xl border border-blue-400/40 shadow-lg shadow-blue-500/10 mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-2xl">📡</span>
+              <p className="text-white font-bold text-lg">Network Dashboard</p>
             </div>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                <span className="text-blue-200/70 text-sm">IP Address:</span>
-                <span className="text-white font-mono text-sm">{location.ip}</span>
+            
+            {/* Grid Layout for Key Info */}
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              {/* IPv4 */}
+              <div className="bg-gradient-to-br from-cyan-500/20 to-transparent p-3 rounded-lg border border-cyan-400/30">
+                <div className="text-cyan-300/70 text-xs mb-1 font-medium">IPv4 Address</div>
+                <div className="text-white font-mono text-sm font-bold">{location.ip}</div>
               </div>
-              {location.isp && location.isp !== 'Unknown ISP' && (
-                <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                  <span className="text-blue-200/70 text-sm">Internet Provider:</span>
-                  <span className="text-cyan-300 font-medium text-sm">{location.isp}</span>
+              
+              {/* IPv6 */}
+              <div className="bg-gradient-to-br from-indigo-500/20 to-transparent p-3 rounded-lg border border-indigo-400/30">
+                <div className="text-indigo-300/70 text-xs mb-1 font-medium">IPv6 Address</div>
+                <div className="text-white font-mono text-xs font-bold">
+                  {location.ipv6 || 'Not available'}
                 </div>
-              )}
-              {location.country && location.country !== 'Unknown' && (
-                <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                  <span className="text-blue-200/70 text-sm">Country:</span>
-                  <span className="text-white text-sm">{location.country}</span>
+              </div>
+              
+              {/* ASN */}
+              <div className="bg-gradient-to-br from-purple-500/20 to-transparent p-3 rounded-lg border border-purple-400/30">
+                <div className="text-purple-300/70 text-xs mb-1 font-medium">ASN</div>
+                <div className="text-white font-mono text-sm font-bold">
+                  {location.asn && location.asn !== 'Unknown' ? location.asn : 'N/A'}
                 </div>
-              )}
-              {location.city && location.city !== 'Unknown' && (
-                <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                  <span className="text-blue-200/70 text-sm">City:</span>
-                  <span className="text-white text-sm">{location.city}</span>
+              </div>
+              
+              {/* Timezone */}
+              <div className="bg-gradient-to-br from-pink-500/20 to-transparent p-3 rounded-lg border border-pink-400/30">
+                <div className="text-pink-300/70 text-xs mb-1 font-medium">Timezone</div>
+                <div className="text-white text-sm font-bold">
+                  {location.timezone && location.timezone !== 'Unknown' ? location.timezone : 'N/A'}
                 </div>
-              )}
-              {location.region && location.region !== 'Unknown' && (
-                <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                  <span className="text-blue-200/70 text-sm">Region:</span>
-                  <span className="text-white text-sm">{location.region}</span>
-                </div>
-              )}
-              {location.asn && location.asn !== 'Unknown' && (
-                <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                  <span className="text-blue-200/70 text-sm">ASN:</span>
-                  <span className="text-white font-mono text-xs">{location.asn}</span>
-                </div>
-              )}
-              {location.timezone && location.timezone !== 'Unknown' && (
-                <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                  <span className="text-blue-200/70 text-sm">Timezone:</span>
-                  <span className="text-white text-sm">{location.timezone}</span>
-                </div>
-              )}
-              {location.postal && (
-                <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                  <span className="text-blue-200/70 text-sm">Postal Code:</span>
-                  <span className="text-white text-sm">{location.postal}</span>
-                </div>
-              )}
-              {location.latitude && location.longitude && (
-                <div className="flex justify-between items-center bg-white/5 rounded-lg p-2">
-                  <span className="text-blue-200/70 text-sm">Coordinates:</span>
-                  <span className="text-white font-mono text-xs">
-                    {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
-                  </span>
-                </div>
-              )}
+              </div>
             </div>
+
+            {/* Service Provider Section */}
+            {location.isp && location.isp !== 'Unknown ISP' && (
+              <div className="bg-gradient-to-br from-green-500/20 to-transparent p-3 rounded-lg border border-green-400/30 mb-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg">🏢</span>
+                  <div className="text-green-300/70 text-xs font-medium">Service Provider</div>
+                </div>
+                <div className="text-cyan-300 font-bold text-base">{location.isp}</div>
+              </div>
+            )}
+
+            {/* Country Section */}
+            {location.country && location.country !== 'Unknown' && (
+              <div className="bg-gradient-to-br from-yellow-500/20 to-transparent p-3 rounded-lg border border-yellow-400/30">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg">🌍</span>
+                  <div className="text-yellow-300/70 text-xs font-medium">Location</div>
+                </div>
+                <div className="text-white font-bold text-base">
+                  {location.city && location.city !== 'Unknown' ? `${location.city}, ` : ''}
+                  {location.region && location.region !== 'Unknown' ? `${location.region}, ` : ''}
+                  {location.country}
+                </div>
+                {location.postal && (
+                  <div className="text-white/60 text-xs mt-1">Postal: {location.postal}</div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
